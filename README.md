@@ -27,6 +27,11 @@ err := fleetClient.Start(unitFileName)
 unitFileName := "hello-world.service"
 err := fleetClient.Stop(unitFileName)
 
-// Start a unit.
+// Destroy a unit.
 unitFileName := "hello-world.service"
-err := fleetClient.Start(unitFileName)
+err := fleetClient.Destroy(unitFileName)
+
+// Get status of a unit.
+unitFileName := "hello-world.service"
+status, err := fleetClient.Status(unitFileName)
+fmt.Printf("%#v\n", status.Running) // bool
