@@ -2,10 +2,15 @@ package client
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 )
 
-const FLEETCTL = "fleetctl"
+const (
+	FLEETCTL        = "fleetctl"
+	ENDPOINT_OPTION = "--endpoint"
+	ENDPOINT_VALUE  = "http://172.17.42.1:4001"
+)
 
 type Status struct {
 	Running     bool
@@ -19,7 +24,7 @@ func NewClient() *Client {
 }
 
 func (this *Client) Submit(filePath string) error {
-	cmd := exec.Command(FLEETCTL, "submit", filePath)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "submit", filePath)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -28,7 +33,7 @@ func (this *Client) Submit(filePath string) error {
 }
 
 func (this *Client) Start(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, "start", unitFileName)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "start", unitFileName)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -37,7 +42,7 @@ func (this *Client) Start(unitFileName string) error {
 }
 
 func (this *Client) Stop(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, "stop", unitFileName)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "stop", unitFileName)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -46,7 +51,7 @@ func (this *Client) Stop(unitFileName string) error {
 }
 
 func (this *Client) Destroy(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, "destroy", unitFileName)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "destroy", unitFileName)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -57,7 +62,7 @@ func (this *Client) Destroy(unitFileName string) error {
 func (this *Client) Status(unitFileName string) (Status, error) {
 	var out bytes.Buffer
 
-	cmd := exec.Command(FLEETCTL, "list-units")
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "list-units")
 	cmd.Stdout = &out
 
 	if err := cmd.Run(); err != nil {
