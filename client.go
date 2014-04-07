@@ -16,14 +16,22 @@ type Status struct {
 	ContainerIP string
 }
 
-type Client struct{}
+type Client struct {
+	etcdPeer string
+}
 
 func NewClient() *Client {
-	return &Client{}
+	return &Client{
+		etcdPeer: ENDPOINT_VALUE,
+	}
+}
+
+func (this *Client) SetEtcdPeer(etcdPeer string) {
+	this.etcdPeer = etcdPeer
 }
 
 func (this *Client) Submit(filePath string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "submit", filePath)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "submit", filePath)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -32,7 +40,7 @@ func (this *Client) Submit(filePath string) error {
 }
 
 func (this *Client) Start(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "start", unitFileName)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "start", unitFileName)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -41,7 +49,7 @@ func (this *Client) Start(unitFileName string) error {
 }
 
 func (this *Client) Stop(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "stop", unitFileName)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "stop", unitFileName)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -50,7 +58,7 @@ func (this *Client) Stop(unitFileName string) error {
 }
 
 func (this *Client) Destroy(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "destroy", unitFileName)
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "destroy", unitFileName)
 	if err := cmd.Run(); err != nil {
 		return err
 	}
@@ -61,7 +69,7 @@ func (this *Client) Destroy(unitFileName string) error {
 func (this *Client) Status(unitFileName string) (Status, error) {
 	var out bytes.Buffer
 
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, ENDPOINT_VALUE, "list-units")
+	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
 	cmd.Stdout = &out
 
 	if err := cmd.Run(); err != nil {
