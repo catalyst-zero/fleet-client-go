@@ -2,7 +2,11 @@ package client
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"strings"
+
+	execPkg "os/exec"
 )
 
 func isRunning(unitFileName, listUnitsOutPut string) (bool, error) {
@@ -17,7 +21,7 @@ func isRunning(unitFileName, listUnitsOutPut string) (bool, error) {
 			continue
 		}
 
-		for _, word := range strings.Split(line, " ") {
+		for _, word := range strings.Split(line, "\t") {
 			if word == "running" {
 				running = true
 			}
@@ -31,4 +35,24 @@ func isRunning(unitFileName, listUnitsOutPut string) (bool, error) {
 	}
 
 	return running, nil
+}
+
+func exec(cmd *execPkg.Cmd) (string, error) {
+	var (
+		stdout bytes.Buffer
+		stderr bytes.Buffer
+	)
+
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
+
+	if err := stderr.String(); err != "" {
+		return "", fmt.Errorf(err)
+	}
+
+	return stdout.String(), nil
 }

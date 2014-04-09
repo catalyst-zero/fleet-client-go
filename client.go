@@ -1,8 +1,7 @@
 package client
 
 import (
-	"bytes"
-	"os/exec"
+	execPkg "os/exec"
 )
 
 const (
@@ -31,8 +30,10 @@ func (this *Client) SetEtcdPeer(etcdPeer string) {
 }
 
 func (this *Client) Submit(filePath string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "submit", filePath)
-	if err := cmd.Run(); err != nil {
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "submit", filePath)
+	_, err := exec(cmd)
+
+	if err != nil {
 		return err
 	}
 
@@ -40,8 +41,10 @@ func (this *Client) Submit(filePath string) error {
 }
 
 func (this *Client) Start(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "start", unitFileName)
-	if err := cmd.Run(); err != nil {
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "start", unitFileName)
+	_, err := exec(cmd)
+
+	if err != nil {
 		return err
 	}
 
@@ -49,8 +52,10 @@ func (this *Client) Start(unitFileName string) error {
 }
 
 func (this *Client) Stop(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "stop", unitFileName)
-	if err := cmd.Run(); err != nil {
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "stop", unitFileName)
+	_, err := exec(cmd)
+
+	if err != nil {
 		return err
 	}
 
@@ -58,8 +63,10 @@ func (this *Client) Stop(unitFileName string) error {
 }
 
 func (this *Client) Destroy(unitFileName string) error {
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "destroy", unitFileName)
-	if err := cmd.Run(); err != nil {
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "destroy", unitFileName)
+	_, err := exec(cmd)
+
+	if err != nil {
 		return err
 	}
 
@@ -67,16 +74,10 @@ func (this *Client) Destroy(unitFileName string) error {
 }
 
 func (this *Client) Status(unitFileName string) (Status, error) {
-	var out bytes.Buffer
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
+	stdout, err := exec(cmd)
 
-	cmd := exec.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
-		return Status{}, err
-	}
-
-	running, err := isRunning(unitFileName, out.String())
+	running, err := isRunning(unitFileName, stdout)
 	if err != nil {
 		return Status{}, err
 	}
