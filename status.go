@@ -8,6 +8,19 @@ import (
 	"strings"
 )
 
+const (
+	LOAD_UNKNOWN = "-"
+	LOAD_LOADED  = "loaded"
+
+	ACTIVE_UNKNOWN = "-"
+	ACTIVE_ACTIVE  = "-"
+	ACTIVE_FAILED  = "failed"
+
+	SUB_UNKNOWN = "-"
+	SUB_RUNNING = "running"
+	SUB_FAILED  = "failed"
+)
+
 type UnitStatus struct {
 	// Unit Name with file extension
 	Unit string
@@ -18,7 +31,7 @@ type UnitStatus struct {
 	// "-", "active", "failed"
 	Active string
 
-	// The state of the unit, e.g. "-", "running" or "failed"
+	// The state of the unit, e.g. "-", "running" or "failed". See the SUB_* constants.
 	Sub         string
 	Description string
 
@@ -107,7 +120,7 @@ func (this *Client) Status(unitFileName string) (Status, error) {
 	for _, status := range allStatus {
 		if status.Unit == unitFileName {
 			result := Status{
-				Running:     status.Sub == "running",
+				Running:     status.Sub == SUB_RUNNING,
 				ContainerIP: "127.0.0.1",
 			}
 			return result, nil
