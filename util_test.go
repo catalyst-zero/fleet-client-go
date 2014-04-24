@@ -6,7 +6,7 @@ import (
 
 func TestGetMachineIp(t *testing.T) {
 	test := func(input, expectedOutput string) {
-		ip := GetMachineIp(input)
+		ip := GetMachineIP(input)
 
 		if ip != expectedOutput {
 			t.Fatalf("Expected '%s', but got '%s' for GetMachineIp('%s')", expectedOutput, ip, input)
