@@ -3,6 +3,7 @@ package client
 // Parse for `fleet status` output
 import (
 	"bufio"
+	"fmt"
 	execPkg "os/exec"
 	"strings"
 )
@@ -71,6 +72,25 @@ func parseFleetStatusOutput(output string) ([]UnitStatus, error) {
 		return result, scanner.Err()
 	}
 	return result, nil
+}
+
+// StatusUnit returns the UnitStatus for the given unitfile.
+// If the unit is not found or could not be retrieved, an error will be returned.
+//
+// Internally it executes `fleetctl status` and looks for the matching
+// unit file. Its {UnitStatus} will be returned.
+func (this *Client) StatusUnit(unitFileName string) (UnitStatus, error) {
+	status, err := this.StatusAll()
+	if err != nil {
+		return UnitStatus{}, err
+	}
+
+	for _, s := range status {
+		if s.Unit == unitFileName {
+			return s, nil
+		}
+	}
+	return UnitStatus{}, fmt.Errorf("Unknown unitfilename: %s", unitFileName)
 }
 
 type Status struct {
