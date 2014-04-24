@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	execPkg "os/exec"
 )
@@ -27,7 +28,7 @@ func exec(cmd *execPkg.Cmd) (string, error) {
 	return stdout.String(), nil
 }
 
-func filterNonEmpty(values []string) []string {
+func filterEmpty(values []string) []string {
 	result := make([]string, 0)
 	for _, v := range values {
 		if strings.TrimSpace(v) != "" {

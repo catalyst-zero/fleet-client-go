@@ -54,7 +54,7 @@ func parseFleetStatusOutput(output string) ([]UnitStatus, error) {
 			continue
 		}
 
-		words := filterNonEmpty(strings.Split(line, "\t"))
+		words := filterEmpty(strings.Split(line, "\t"))
 		unitStatus := UnitStatus{
 			Unit:        words[0],
 			Load:        words[1],
