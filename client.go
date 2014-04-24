@@ -10,11 +10,6 @@ const (
 	ENDPOINT_VALUE  = "http://172.17.42.1:4001"
 )
 
-type Status struct {
-	Running     bool
-	ContainerIP string
-}
-
 type Client struct {
 	etcdPeer string
 }
@@ -71,16 +66,4 @@ func (this *Client) Destroy(unitFileName string) error {
 	}
 
 	return nil
-}
-
-func (this *Client) Status(unitFileName string) (Status, error) {
-	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
-	stdout, err := exec(cmd)
-
-	running, err := isRunning(unitFileName, stdout)
-	if err != nil {
-		return Status{}, err
-	}
-
-	return Status{Running: running, ContainerIP: "127.0.0.1"}, nil
 }
