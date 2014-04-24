@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"strings"
@@ -9,32 +8,15 @@ import (
 	execPkg "os/exec"
 )
 
-func isRunning(unitFileName, listUnitsOutPut string) (bool, error) {
-	running := false
-	scanner := bufio.NewScanner(strings.NewReader(listUnitsOutPut))
-
-	// Scan each line of input.
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		if !strings.HasPrefix(line, unitFileName) {
-			continue
-		}
-
-		for _, word := range strings.Split(line, "\t") {
-			if word == "running" {
-				running = true
-			}
-		}
+// GetMachineIP parses the unitMachine in format "uuid/ip" and returns only the IP part.
+// Can be used with the {UnitStatus.Machine} field.
+// Returns an empty string, if no ip was found.
+func GetMachineIP(unitMachine string) string {
+	fields := strings.Split(unitMachine, "/")
+	if len(fields) < 2 {
+		return ""
 	}
-
-	// When finished scanning if any error other than io.EOF occured
-	// it will be returned by scanner.Err().
-	if err := scanner.Err(); err != nil {
-		return false, scanner.Err()
-	}
-
-	return running, nil
+	return fields[1]
 }
 
 func exec(cmd *execPkg.Cmd) (string, error) {
@@ -55,4 +37,16 @@ func exec(cmd *execPkg.Cmd) (string, error) {
 	}
 
 	return stdout.String(), nil
+}
+
+// filterEmpty returns an array containing all non-empty strings of the input array.
+// Non-empty as in `strings.TrimSpace(v) != ""`.
+func filterEmpty(values []string) []string {
+	result := make([]string, 0)
+	for _, v := range values {
+		if strings.TrimSpace(v) != "" {
+			result = append(result, v)
+		}
+	}
+	return result
 }
