@@ -27,7 +27,7 @@ fc80556b-0f2a-46bf-b580-76d2228cb5bd.service	loaded	active	running	stm-api-servi
 		t.Fatalf("Invalid number of status objects returned, expected 12, got: %d", len(status))
 	}
 
-	testUnit := func(status UnitStatus, expectedUnitName, expectedLoad, expectedActive, expectedSub, expectedDesc, expectedMachine string) {
+	testUnit := func(status UnitStatus, expectedUnitName, expectedLoad, expectedActive, expectedSub, expectedDesc, expectedMachine, expectedMachineIP string) {
 		if status.Unit != expectedUnitName {
 			t.Fatalf("Unexpected unit name: %s", status.Unit)
 		}
@@ -46,6 +46,9 @@ fc80556b-0f2a-46bf-b580-76d2228cb5bd.service	loaded	active	running	stm-api-servi
 		if status.Machine != expectedMachine {
 			t.Fatalf("Unexpected machine: %s", status.Machine)
 		}
+		if status.MachineIP() != expectedMachineIP {
+			t.Fatalf("Unexpected IP: %s", status.MachineIP())
+		}
 	}
 
 	testUnit(
@@ -56,6 +59,7 @@ fc80556b-0f2a-46bf-b580-76d2228cb5bd.service	loaded	active	running	stm-api-servi
 		"-",
 		"stm-session-service Sidekick",
 		"-",
+		"",
 	)
 	testUnit(
 		status[6],
@@ -65,5 +69,6 @@ fc80556b-0f2a-46bf-b580-76d2228cb5bd.service	loaded	active	running	stm-api-servi
 		"running",
 		"stm-api-service Service",
 		"f715c360.../172.17.8.103",
+		"172.17.8.103",
 	)
 }

@@ -44,7 +44,7 @@ type UnitStatus struct {
 
 // MachineIP returns the IP of the used machine, if available, an empty string otherwise.
 // Alias for `return GetMachineIp(status.Machine)`.
-func (status UnitStatus) MachineIP() {
+func (status UnitStatus) MachineIP() string {
 	return GetMachineIp(status.Machine)
 }
 
