@@ -42,6 +42,12 @@ type UnitStatus struct {
 	Machine string
 }
 
+// MachineIP returns the IP of the used machine, if available, an empty string otherwise.
+// Alias for `return GetMachineIp(status.Machine)`.
+func (status UnitStatus) MachineIP() {
+	return GetMachineIp(status.Machine)
+}
+
 // StatusAll executes "fleetctl status" and parses the output table. Thus, certain fields can be mangled or
 // shortened, e.g. the machine column.
 func (this *Client) StatusAll() ([]UnitStatus, error) {

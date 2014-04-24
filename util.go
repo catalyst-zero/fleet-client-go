@@ -8,6 +8,17 @@ import (
 	execPkg "os/exec"
 )
 
+// GetMachineIp parses the unitMachine in format "uuid/ip" and returns only the IP part.
+// Can be us with the {UnitStatus.Machine} field.
+// Returns an empty string, if no ip was found.
+func GetMachineIp(unitMachine string) string {
+	fields := strings.Split(unitMachine, "/")
+	if len(fields) < 2 {
+		return ""
+	}
+	return fields[1]
+}
+
 func exec(cmd *execPkg.Cmd) (string, error) {
 	var (
 		stdout bytes.Buffer
