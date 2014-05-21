@@ -1,6 +1,7 @@
 package client
 
 import (
+"github.com/juju/errgo"
 	execPkg "os/exec"
 )
 
@@ -31,10 +32,11 @@ func (this *Client) SetEtcdPeer(etcdPeer string) {
 
 func (this *Client) Submit(filePath string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "submit", filePath)
-	_, err := exec(cmd)
+	out, err := exec(cmd)
+  fmt.Printf("fleetctl submit: %s\n", out)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 
 	return nil
@@ -42,10 +44,11 @@ func (this *Client) Submit(filePath string) error {
 
 func (this *Client) Start(unitFileName string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "start", unitFileName)
-	_, err := exec(cmd)
+	out, err := exec(cmd)
+  fmt.Printf("fleetctl start: %s\n", out)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 
 	return nil
@@ -53,10 +56,11 @@ func (this *Client) Start(unitFileName string) error {
 
 func (this *Client) Stop(unitFileName string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "stop", unitFileName)
-	_, err := exec(cmd)
+	out, err := exec(cmd)
+  fmt.Printf("fleetctl stop: %s\n", out)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 
 	return nil
@@ -64,10 +68,11 @@ func (this *Client) Stop(unitFileName string) error {
 
 func (this *Client) Destroy(unitFileName string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "destroy", unitFileName)
-	_, err := exec(cmd)
+	out, err := exec(cmd)
+  fmt.Printf("fleetctl destroy: %s\n", out)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 
 	return nil
@@ -76,10 +81,11 @@ func (this *Client) Destroy(unitFileName string) error {
 func (this *Client) Status(unitFileName string) (Status, error) {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
 	stdout, err := exec(cmd)
+  fmt.Printf("fleetctl status: %s\n", out)
 
 	running, err := isRunning(unitFileName, stdout)
 	if err != nil {
-		return Status{}, err
+		return Status{}, errgo.Mask(err)
 	}
 
 	return Status{Running: running, ContainerIP: "127.0.0.1"}, nil
