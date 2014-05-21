@@ -82,7 +82,7 @@ func (this *Client) Destroy(unitFileName string) error {
 func (this *Client) Status(unitFileName string) (Status, error) {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
 	stdout, err := exec(cmd)
-	fmt.Printf("fleetctl status: %s\n", out)
+	fmt.Printf("fleetctl status: %s\n", stdout)
 
 	running, err := isRunning(unitFileName, stdout)
 	if err != nil {
