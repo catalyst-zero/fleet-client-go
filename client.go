@@ -69,19 +69,3 @@ func (this *Client) Destroy(unitFileName string) error {
 
 	return nil
 }
-
-func (this *Client) Status(unitFileName string) (Status, error) {
-	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
-	stdout, err := exec(cmd)
-
-	if err != nil {
-		return Status{}, errgo.Mask(err)
-	}
-
-	running, err := isRunning(unitFileName, stdout)
-	if err != nil {
-		return Status{}, errgo.Mask(err)
-	}
-
-	return Status{Running: running, ContainerIP: "127.0.0.1"}, nil
-}
