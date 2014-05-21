@@ -1,8 +1,8 @@
 package client
 
 import (
-	"fmt"
 	"github.com/juju/errgo"
+
 	execPkg "os/exec"
 )
 
@@ -33,8 +33,7 @@ func (this *Client) SetEtcdPeer(etcdPeer string) {
 
 func (this *Client) Submit(filePath string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "submit", filePath)
-	out, err := exec(cmd)
-	fmt.Printf("fleetctl submit: %s\n", out)
+	_, err := exec(cmd)
 
 	if err != nil {
 		return errgo.Mask(err)
@@ -44,9 +43,8 @@ func (this *Client) Submit(filePath string) error {
 }
 
 func (this *Client) Start(unitFileName string) error {
-	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "start", unitFileName)
-	out, err := exec(cmd)
-	fmt.Printf("fleetctl start: %s\n", out)
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "start", "--no-block=true", unitFileName)
+	_, err := exec(cmd)
 
 	if err != nil {
 		return errgo.Mask(err)
@@ -56,9 +54,8 @@ func (this *Client) Start(unitFileName string) error {
 }
 
 func (this *Client) Stop(unitFileName string) error {
-	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "stop", unitFileName)
-	out, err := exec(cmd)
-	fmt.Printf("fleetctl stop: %s\n", out)
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "stop", "--no-block=true", unitFileName)
+	_, err := exec(cmd)
 
 	if err != nil {
 		return errgo.Mask(err)
@@ -69,8 +66,7 @@ func (this *Client) Stop(unitFileName string) error {
 
 func (this *Client) Destroy(unitFileName string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "destroy", unitFileName)
-	out, err := exec(cmd)
-	fmt.Printf("fleetctl destroy: %s\n", out)
+	_, err := exec(cmd)
 
 	if err != nil {
 		return errgo.Mask(err)
@@ -82,7 +78,10 @@ func (this *Client) Destroy(unitFileName string) error {
 func (this *Client) Status(unitFileName string) (Status, error) {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
 	stdout, err := exec(cmd)
-	fmt.Printf("fleetctl status: %s\n", stdout)
+
+	if err != nil {
+		return Status{}, errgo.Mask(err)
+	}
 
 	running, err := isRunning(unitFileName, stdout)
 	if err != nil {
