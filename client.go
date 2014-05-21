@@ -12,11 +12,6 @@ const (
 	ENDPOINT_VALUE  = "http://172.17.42.1:4001"
 )
 
-type Status struct {
-	Running     bool
-	ContainerIP string
-}
-
 type Client struct {
 	etcdPeer string
 }

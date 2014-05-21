@@ -1,9 +1,10 @@
 # fleet-client-go
+
 Currently that client requires a `fleetctl` binary available to execute. Thus
 there is no ssh connection used, the possible commands are `submit`, `start`,
 `stop`, `destroy`, `list-units`, `list-machines`. The client supports a dump
-version of `Status`, that uses `list-units` and just parses if a service is
-running or not.
+version of `Status`, that uses `list-units` and just parses whether a service
+is running or not.
 
 ## install
 ```go
