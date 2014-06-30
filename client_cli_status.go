@@ -50,7 +50,7 @@ func (status UnitStatus) MachineIP() string {
 
 // StatusAll executes "fleetctl status" and parses the output table. Thus, certain fields can be mangled or
 // shortened, e.g. the machine column.
-func (this *Client) StatusAll() ([]UnitStatus, error) {
+func (this *ClientCLI) StatusAll() ([]UnitStatus, error) {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "list-units")
 	stdout, err := exec(cmd)
 	if err != nil {
@@ -98,33 +98,28 @@ func parseFleetStatusOutput(output string) ([]UnitStatus, error) {
 //
 // Internally it executes `fleetctl status` and looks for the matching
 // unit file. Its {UnitStatus} will be returned.
-func (this *Client) StatusUnit(unitFileName string) (UnitStatus, error) {
+func (this *ClientCLI) StatusUnit(name string) (UnitStatus, error) {
 	status, err := this.StatusAll()
 	if err != nil {
 		return UnitStatus{}, err
 	}
 
 	for _, s := range status {
-		if s.Unit == unitFileName {
+		if s.Unit == name {
 			return s, nil
 		}
 	}
-	return UnitStatus{}, fmt.Errorf("Unknown unitfilename: %s", unitFileName)
+	return UnitStatus{}, fmt.Errorf("Unknown unit: %s", name)
 }
 
-type Status struct {
-	Running     bool
-	ContainerIP string
-}
-
-func (this *Client) Status(unitFileName string) (Status, error) {
+func (this *ClientCLI) Status(name string) (Status, error) {
 	allStatus, err := this.StatusAll()
 	if err != nil {
 		return Status{}, err
 	}
 
 	for _, status := range allStatus {
-		if status.Unit == unitFileName {
+		if status.Unit == name {
 			result := Status{
 				Running:     status.Sub == SUB_RUNNING,
 				ContainerIP: "127.0.0.1",

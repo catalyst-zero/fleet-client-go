@@ -6,6 +6,8 @@ there is no ssh connection used, the possible commands are `submit`, `start`,
 version of `Status`, that uses `list-units` and just parses whether a service
 is running or not.
 
+A new way to use fleets http api has been implemented. 
+
 ## install
 ```go
 import fleetClientPkg "github.com/catalyst-zero/fleet-client-go"
