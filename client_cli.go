@@ -5,6 +5,7 @@ import (
 	"github.com/coreos/fleet/job"
 
 	execPkg "os/exec"
+	"fmt"
 )
 
 const (
@@ -39,7 +40,7 @@ func (this *ClientCLI) Submit(name, filePath string) error {
 }
 
 func (this *ClientCLI) Get(name string) (*job.Job, error) {
-	return &job.Job{}, nil
+	return nil, fmt.Errorf("Method not implemented: ClientCLI.Get")
 }
 
 func (this *ClientCLI) Start(name string) error {

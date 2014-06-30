@@ -112,21 +112,20 @@ func (this *ClientCLI) StatusUnit(name string) (UnitStatus, error) {
 	return UnitStatus{}, fmt.Errorf("Unknown unit: %s", name)
 }
 
-func (this *ClientCLI) Status(name string) (Status, error) {
+func (this *ClientCLI) Status(name string) (*Status, error) {
 	allStatus, err := this.StatusAll()
 	if err != nil {
-		return Status{}, err
+		return nil, err
 	}
 
 	for _, status := range allStatus {
 		if status.Unit == name {
-			result := Status{
+			return &Status{
 				Running:     status.Sub == SUB_RUNNING,
 				ContainerIP: "127.0.0.1",
-			}
-			return result, nil
+			}, nil
 		}
 	}
 	// Return running=false, because we didn't find it
-	return Status{}, nil
+	return nil, fmt.Errorf("Job not found: %s", name)
 }

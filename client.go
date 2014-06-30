@@ -15,7 +15,7 @@ type FleetClient interface {
 	Start(name string) error
 	Stop(name string) error
 	Destroy(name string) error
-	Status(name string) (Status, error)
+	Status(name string) (*Status, error)
 }
 
 func NewClient() FleetClient {

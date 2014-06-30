@@ -8,6 +8,7 @@ import (
 	"github.com/coreos/fleet/client"
 	"github.com/coreos/fleet/unit"
 	"github.com/coreos/fleet/job"
+	"github.com/juju/errgo"
 )
 
 const (
@@ -47,7 +48,7 @@ func NewClientAPIWithSocket(socket string) FleetClient {
 func getUnitFromFile(file string) (*unit.Unit, error) {
 	out, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, err
+		return nil, errgo.Mask(err)
 	}
 
 	return unit.NewUnit(string(out))
@@ -82,7 +83,7 @@ func (this *ClientAPI) Start(name string) error {
 	j, err := this.Get(name)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 	this.client.SetJobTargetState(j.Name, job.JobStateLaunched)
 	
@@ -93,7 +94,7 @@ func (this *ClientAPI) Stop(name string) error {
 	j, err := this.Get(name)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 	this.client.SetJobTargetState(j.Name, job.JobStateLoaded)
 	
@@ -104,13 +105,13 @@ func (this *ClientAPI) Destroy(name string) error {
 	j, err := this.Get(name)
 
 	if err != nil {
-		return err
+		return errgo.Mask(err)
 	}
 	this.client.DestroyJob(j.Name)
 	
 	return nil
 }
 
-func (this *ClientAPI) Status(name string) (Status, error) {
-	return Status{}, nil
+func (this *ClientAPI) Status(name string) (*Status, error) {
+	return nil, fmt.Errorf("Method not implemented: ClientAPI.Status")
 }
