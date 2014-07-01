@@ -24,7 +24,7 @@ func NewClientCLI() FleetClient {
 
 func NewClientCLIWithPeer(etcdPeer string) FleetClient {
 	return &ClientCLI{
-		etcdPeer: ENDPOINT_VALUE,
+		etcdPeer: etcdPeer,
 	}
 }
 
