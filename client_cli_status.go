@@ -8,40 +8,6 @@ import (
 	"strings"
 )
 
-const (
-	LOAD_UNKNOWN = "-"
-	LOAD_LOADED  = "loaded"
-
-	ACTIVE_UNKNOWN = "-"
-	ACTIVE_ACTIVE  = "-"
-	ACTIVE_FAILED  = "failed"
-
-	SUB_UNKNOWN = "-"
-	SUB_RUNNING = "running"
-	SUB_FAILED  = "failed"
-)
-
-type UnitStatus struct {
-	// Unit Name with file extension
-	Unit string
-
-	// "-", "loaded"
-	Load string
-
-	// "-", "active", "failed"
-	Active string
-
-	// The state of the unit, e.g. "-", "running" or "failed". See the SUB_* constants.
-	Sub         string
-	Description string
-
-	// The machine that is used to execute the unit.
-	// Is "-", when no machine is assigned.
-	// Otherwise is in the format of "uuid/ip", where uuid is shortened version of the host uuid
-	// and IP is the IP assigned to that machine.
-	Machine string
-}
-
 // MachineIP returns the IP of the used machine, if available, an empty string otherwise.
 // Alias for `return GetMachineIp(status.Machine)`.
 func (status UnitStatus) MachineIP() string {
