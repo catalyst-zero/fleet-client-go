@@ -1,14 +1,14 @@
 package client
 
 import (
-	"net"
-	"net/http"
-	"io/ioutil"
 	"fmt"
 	"github.com/coreos/fleet/client"
-	"github.com/coreos/fleet/unit"
 	"github.com/coreos/fleet/job"
+	"github.com/coreos/fleet/unit"
 	"github.com/juju/errgo"
+	"io/ioutil"
+	"net"
+	"net/http"
 )
 
 const (
@@ -35,7 +35,7 @@ func NewClientAPIWithSocket(socket string) FleetClient {
 	hc := http.Client{
 		Transport: &trans,
 	}
-	
+
 	c, _ := client.NewHTTPClient(&hc)
 
 	return &ClientAPI{
@@ -59,7 +59,7 @@ func (this *ClientAPI) Submit(name, filePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed reading unit file %s: %v", name, err)
 	}
-	
+
 	j := job.NewJob(name, *unit)
 
 	if err := this.client.CreateJob(j); err != nil {
@@ -86,7 +86,7 @@ func (this *ClientAPI) Start(name string) error {
 		return errgo.Mask(err)
 	}
 	this.client.SetJobTargetState(j.Name, job.JobStateLaunched)
-	
+
 	return nil
 }
 
@@ -97,7 +97,7 @@ func (this *ClientAPI) Stop(name string) error {
 		return errgo.Mask(err)
 	}
 	this.client.SetJobTargetState(j.Name, job.JobStateLoaded)
-	
+
 	return nil
 }
 
@@ -108,10 +108,32 @@ func (this *ClientAPI) Destroy(name string) error {
 		return errgo.Mask(err)
 	}
 	this.client.DestroyJob(j.Name)
-	
+
 	return nil
 }
 
 func (this *ClientAPI) Status(name string) (*Status, error) {
 	return nil, fmt.Errorf("Method not implemented: ClientAPI.Status")
+}
+
+func (this *ClientAPI) StatusUnit(name string) (UnitStatus, error) {
+	j, err := this.Get(name)
+
+	if err != nil {
+		return UnitStatus{}, errgo.Mask(err)
+	}
+	description := ""
+	for _, s := range j.Unit.Contents["Unit"]["Description"] {
+		description = s
+	}
+	return UnitStatus{
+		Unit:   j.Name,
+		Load:   j.UnitState.LoadState,
+		Active: j.UnitState.ActiveState,
+		Sub:    j.UnitState.SubState,
+
+		Description: description,
+
+		Machine: j.UnitState.MachineState.PublicIP,
+	}, nil
 }
