@@ -5,6 +5,9 @@ import (
 )
 
 const (
+	STATUS_LAUNCHED = "launched"
+	STATUS_INACTIVE = "inactive"
+
 	LOAD_UNKNOWN = "-"
 	LOAD_LOADED  = "loaded" // See https://github.com/coreos/fleet/blob/master/job/job.go
 
@@ -20,6 +23,9 @@ const (
 type UnitStatus struct {
 	// Unit Name with file extension
 	Unit string
+
+	// Fleet state, "launched" or "inactive"
+	State string
 
 	// "-", "loaded"
 	Load string
