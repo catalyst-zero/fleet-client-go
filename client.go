@@ -17,6 +17,7 @@ const (
 	ACTIVE_FAILED     = "failed"
 
 	SUB_UNKNOWN   = "-"
+	SUB_DEAD      = "dead"
 	SUB_LAUNCHED  = "launched"
 	SUB_START     = "start"
 	SUB_START_PRE = "start-re"
