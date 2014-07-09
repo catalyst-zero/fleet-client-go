@@ -11,11 +11,13 @@ const (
 	LOAD_UNKNOWN = "-"
 	LOAD_LOADED  = "loaded" // See https://github.com/coreos/fleet/blob/master/job/job.go
 
-	ACTIVE_UNKNOWN = "-"
-	ACTIVE_ACTIVE  = "active"
-	ACTIVE_FAILED  = "failed"
+	ACTIVE_UNKNOWN    = "-"
+	ACTIVE_ACTIVE     = "active"
+	ACTIVE_ACTIVATING = "activating"
+	ACTIVE_FAILED     = "failed"
 
 	SUB_UNKNOWN = "-"
+	SUB_START   = "start"
 	SUB_RUNNING = "running"
 	SUB_EXITED  = "exited"
 	SUB_FAILED  = "failed"
