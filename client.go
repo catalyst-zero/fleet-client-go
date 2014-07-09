@@ -20,7 +20,7 @@ const (
 	SUB_DEAD      = "dead"
 	SUB_LAUNCHED  = "launched"
 	SUB_START     = "start"
-	SUB_START_PRE = "start-re"
+	SUB_START_PRE = "start-pre"
 	SUB_RUNNING   = "running"
 	SUB_EXITED    = "exited"
 	SUB_FAILED    = "failed"
