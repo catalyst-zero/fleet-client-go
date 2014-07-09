@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	STATUS_LAUNCHED = "launched"
-	STATUS_INACTIVE = "inactive"
+	STATE_LAUNCHED = "launched"
+	STATE_INACTIVE = "inactive"
 
 	LOAD_UNKNOWN = "-"
 	LOAD_LOADED  = "loaded" // See https://github.com/coreos/fleet/blob/master/job/job.go
