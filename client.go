@@ -17,6 +17,7 @@ const (
 
 	SUB_UNKNOWN = "-"
 	SUB_RUNNING = "running"
+	SUB_EXITED  = "exited"
 	SUB_FAILED  = "failed"
 )
 
@@ -34,7 +35,8 @@ type UnitStatus struct {
 	Active string
 
 	// The state of the unit, e.g. "-", "running" or "failed". See the SUB_* constants.
-	Sub         string
+	Sub string
+
 	Description string
 
 	// The machine that is used to execute the unit.
@@ -43,6 +45,7 @@ type UnitStatus struct {
 	// and IP is the IP assigned to that machine.
 	Machine string
 }
+
 type Status struct {
 	Running     bool
 	ContainerIP string
