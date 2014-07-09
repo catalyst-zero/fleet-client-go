@@ -6,6 +6,7 @@ import (
 
 const (
 	STATE_LAUNCHED = "launched"
+	STATE_LOADED   = "loaded"
 	STATE_INACTIVE = "inactive"
 
 	LOAD_UNKNOWN = "-"
