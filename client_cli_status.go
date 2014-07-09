@@ -9,6 +9,9 @@ import (
 )
 
 const (
+	STATUS_LAUNCHED = "launched"
+	STATUS_INACTIVE = "inactive"
+
 	LOAD_UNKNOWN = "-"
 	LOAD_LOADED  = "loaded"
 
@@ -24,6 +27,9 @@ const (
 type UnitStatus struct {
 	// Unit Name with file extension
 	Unit string
+
+	// Fleet state, "launched" or "inactive"
+	State string
 
 	// "-", "loaded"
 	Load string
@@ -76,11 +82,12 @@ func parseFleetStatusOutput(output string) ([]UnitStatus, error) {
 		words := filterEmpty(strings.Split(line, "\t"))
 		unitStatus := UnitStatus{
 			Unit:        words[0],
-			Load:        words[1],
-			Active:      words[2],
-			Sub:         words[3],
-			Description: words[4],
-			Machine:     words[5],
+			State:       words[1],
+			Load:        words[2],
+			Active:      words[3],
+			Sub:         words[4],
+			Description: words[5],
+			Machine:     words[6],
 		}
 		result = append(result, unitStatus)
 	}
