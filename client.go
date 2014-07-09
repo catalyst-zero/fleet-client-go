@@ -16,11 +16,13 @@ const (
 	ACTIVE_ACTIVATING = "activating"
 	ACTIVE_FAILED     = "failed"
 
-	SUB_UNKNOWN = "-"
-	SUB_START   = "start"
-	SUB_RUNNING = "running"
-	SUB_EXITED  = "exited"
-	SUB_FAILED  = "failed"
+	SUB_UNKNOWN   = "-"
+	SUB_LAUNCHED  = "launched"
+	SUB_START     = "start"
+	SUB_START_PRE = "start-re"
+	SUB_RUNNING   = "running"
+	SUB_EXITED    = "exited"
+	SUB_FAILED    = "failed"
 )
 
 type UnitStatus struct {
