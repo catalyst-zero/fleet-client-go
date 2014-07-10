@@ -122,18 +122,32 @@ func (this *ClientAPI) StatusUnit(name string) (UnitStatus, error) {
 	if err != nil {
 		return UnitStatus{}, errgo.Mask(err)
 	}
+
+	machines, err := this.client.Machines()
+	if err != nil {
+		return UnitStatus{}, errgo.Mask(err)
+	}
+
+	ip := ""
+	for _, machine := range machines {
+		if machine.ID == j.UnitState.MachineID {
+			ip = machine.PublicIP
+		}
+	}
+
 	description := ""
 	for _, s := range j.Unit.Contents["Unit"]["Description"] {
 		description = s
 	}
 	return UnitStatus{
 		Unit:   j.Name,
+		State:  string(*j.State),
 		Load:   j.UnitState.LoadState,
 		Active: j.UnitState.ActiveState,
 		Sub:    j.UnitState.SubState,
 
 		Description: description,
 
-		Machine: j.UnitState.MachineState.PublicIP,
+		Machine: ip,
 	}, nil
 }
