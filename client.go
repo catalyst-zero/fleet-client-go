@@ -62,6 +62,7 @@ type FleetClient interface {
 	Submit(name, filePath string) error
 	Start(name string) error
 	Stop(name string) error
+	Load(name string) error
 	Destroy(name string) error
 	Status(name string) (*Status, error) // Deprecated, use StatusUnit()
 	StatusUnit(name string) (UnitStatus, error)

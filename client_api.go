@@ -101,6 +101,17 @@ func (this *ClientAPI) Stop(name string) error {
 	return nil
 }
 
+func (this *ClientAPI) Load(name string) error {
+	j, err := this.Get(name)
+
+	if err != nil {
+		return errgo.Mask(err)
+	}
+	this.client.SetJobTargetState(j.Name, job.JobStateLoaded)
+
+	return nil
+}
+
 func (this *ClientAPI) Destroy(name string) error {
 	j, err := this.Get(name)
 

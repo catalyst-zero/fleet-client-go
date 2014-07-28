@@ -65,6 +65,17 @@ func (this *ClientCLI) Stop(name string) error {
 	return nil
 }
 
+func (this *ClientCLI) Load(name string) error {
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "load", name)
+	_, err := exec(cmd)
+
+	if err != nil {
+		return errgo.Mask(err)
+	}
+
+	return nil
+}
+
 func (this *ClientCLI) Destroy(name string) error {
 	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "destroy", name)
 	_, err := exec(cmd)
