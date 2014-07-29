@@ -1,11 +1,11 @@
 package client
 
 import (
-	"github.com/juju/errgo"
 	"github.com/coreos/fleet/job"
+	"github.com/juju/errgo"
 
-	execPkg "os/exec"
 	"fmt"
+	execPkg "os/exec"
 )
 
 const (
@@ -66,7 +66,7 @@ func (this *ClientCLI) Stop(name string) error {
 }
 
 func (this *ClientCLI) Load(name string) error {
-	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "load", name)
+	cmd := execPkg.Command(FLEETCTL, ENDPOINT_OPTION, this.etcdPeer, "load", "--no-block=true", name)
 	_, err := exec(cmd)
 
 	if err != nil {
