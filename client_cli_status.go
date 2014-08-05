@@ -4,8 +4,9 @@ package client
 import (
 	"bufio"
 	"fmt"
-	execPkg "os/exec"
 	"strings"
+
+	execPkg "os/exec"
 )
 
 // MachineIP returns the IP of the used machine, if available, an empty string otherwise.
@@ -76,7 +77,8 @@ func (this *ClientCLI) StatusUnit(name string) (UnitStatus, error) {
 			return s, nil
 		}
 	}
-	return UnitStatus{}, fmt.Errorf("Unknown unit: %s", name)
+
+	return UnitStatus{}, NewFleetClientError(ERROR_TYPE_NOT_FOUND, fmt.Sprintf("Cannot fetch status. Unit (%s) not found. Aborting...", name))
 }
 
 func (this *ClientCLI) Status(name string) (*Status, error) {
