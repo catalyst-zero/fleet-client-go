@@ -138,20 +138,20 @@ func (this *ClientAPI) Status(name string) (*Status, error) {
 }
 
 func (this *ClientAPI) StatusUnit(name string) (UnitStatus, error) {
-  // Get unit state.
-  unitState, err := this.unitState(name)
+	// Get unit state.
+	unitState, err := this.unitState(name)
 	if err != nil {
 		return UnitStatus{}, errgo.Mask(err)
 	}
 
 	// Get machine ip.
-  ip, err := this.getMachineIp(name)
+	ip, err := this.getMachineIp(name)
 	if err != nil {
 		return UnitStatus{}, errgo.Mask(err)
 	}
 
-  // Get unit.
-  u, err := this.client.Unit(name)
+	// Get unit.
+	u, err := this.client.Unit(name)
 	if err != nil {
 		return UnitStatus{}, errgo.Mask(err)
 	}
@@ -170,23 +170,23 @@ func (this *ClientAPI) StatusUnit(name string) (UnitStatus, error) {
 }
 
 func (this *ClientAPI) unitState(unitName string) (unit.UnitState, error) {
-  unitStates, err := this.client.UnitStates()
+	unitStates, err := this.client.UnitStates()
 	if err != nil {
 		return unit.UnitState{}, errgo.Mask(err)
 	}
 
-  state := &unit.UnitState{}
-  for _, unitState := range unitStates {
-    if unitState.UnitName == unitName {
-      state = unitState
-    }
-  }
+	state := &unit.UnitState{}
+	for _, unitState := range unitStates {
+		if unitState.UnitName == unitName {
+			state = unitState
+		}
+	}
 
-  return *state, nil
+	return *state, nil
 }
 
 func (this *ClientAPI) getMachineIp(unitName string) (string, error) {
-  su, err := this.client.ScheduledUnit(unitName)
+	su, err := this.client.ScheduledUnit(unitName)
 	if err != nil {
 		return "", errgo.Mask(err)
 	}
@@ -203,5 +203,5 @@ func (this *ClientAPI) getMachineIp(unitName string) (string, error) {
 		}
 	}
 
-  return GetMachineIP(ip), nil
+	return GetMachineIP(ip), nil
 }
