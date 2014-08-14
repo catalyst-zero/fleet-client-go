@@ -58,7 +58,8 @@ type Status struct {
 }
 
 type FleetClient interface {
-	Get(name string) (*job.Job, error)
+	Unit(name string) (*job.Unit, error)
+	ScheduledUnit(name string) (*job.ScheduledUnit, error)
 	Submit(name, filePath string) error
 	Start(name string) error
 	Stop(name string) error

@@ -39,8 +39,12 @@ func (this *ClientCLI) Submit(name, filePath string) error {
 	return nil
 }
 
-func (this *ClientCLI) Get(name string) (*job.Job, error) {
-	return nil, fmt.Errorf("Method not implemented: ClientCLI.Get")
+func (this *ClientCLI) ScheduledUnit(name string) (*job.ScheduledUnit, error) {
+	return nil, fmt.Errorf("Method not implemented: ClientCLI.ScheduledUnit")
+}
+
+func (this *ClientCLI) Unit(name string) (*job.Unit, error) {
+	return nil, fmt.Errorf("Method not implemented: ClientCLI.Unit")
 }
 
 func (this *ClientCLI) Start(name string) error {
