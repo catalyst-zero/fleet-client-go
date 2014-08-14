@@ -8,6 +8,6 @@ import (
 func main() {
 	cAPI := client.NewClientAPI()
 
-	j, err := cAPI.Get("app.service")
-	fmt.Println(j, err)
+	u, err := cAPI.Unit("app.service")
+	fmt.Println(u, err)
 }

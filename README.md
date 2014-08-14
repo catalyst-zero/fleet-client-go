@@ -6,7 +6,7 @@ there is no ssh connection used, the possible commands are `submit`, `start`,
 version of `Status`, that uses `list-units` and just parses whether a service
 is running or not.
 
-A new way to use fleets http api has been implemented. 
+A new way to use fleets http api has been implemented.
 
 ## install
 ```go
@@ -15,26 +15,31 @@ import fleetClientPkg "github.com/catalyst-zero/fleet-client-go"
 
 ## usage
 ```go
-// Create new fleet client.
-fleetClient := fleetClientPkg.NewClient()
+// Create new fleet client based on a given binary.
+fleetClient := fleetClientPkg.NewClientCLI()
 
-// Submit unit file.
-unitFilePath := "/tmp/unit-files/hello-world.service"
-err := fleetClient.Submit(unitFilePath)
+// Create new fleet client based on the http api.
+fleetClient := fleetClientPkg.NewClientAPI()
 
-// Start a unit.
-unitFileName := "hello-world.service"
-err := fleetClient.Start(unitFileName)
+// Interface methods.
+type FleetClient interface {
+  // A Unit is a submitted job known by fleet, but not started yet. Submitting
+  // a job creates a unit. Unit() returns such an object. Further a Unit has
+  // different properties than a ScheduledUnit.
+	Unit(name string) (*job.Unit, error)
 
-// Stop a unit.
-unitFileName := "hello-world.service"
-err := fleetClient.Stop(unitFileName)
+  // A ScheduledUnit is a submitted job known by fleet in a specific state.
+  // ScheduledUnit() does not fetch a ScheduledUnit if a Unit is not started
+  // yet, but only submitted. Further a ScheduledUnit has different properties
+  // than a Unit.
+	ScheduledUnit(name string) (*job.ScheduledUnit, error)
 
-// Destroy a unit.
-unitFileName := "hello-world.service"
-err := fleetClient.Destroy(unitFileName)
-
-// Get status of a unit.
-unitFileName := "hello-world.service"
-status, err := fleetClient.Status(unitFileName)
-fmt.Printf("%#v\n", status.Running) // bool
+	Submit(name, filePath string) error
+	Start(name string) error
+	Stop(name string) error
+	Load(name string) error
+	Destroy(name string) error
+	Status(name string) (*Status, error) // Deprecated, use StatusUnit()
+	StatusUnit(name string) (UnitStatus, error)
+}
+```

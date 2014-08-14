@@ -45,13 +45,13 @@ func NewClientAPIWithSocket(socket string) FleetClient {
 
 // getUnitFromFile attempts to load a Unit from a given filename
 // It returns the Unit or nil, and any error encountered
-func getUnitFromFile(file string) (*unit.Unit, error) {
+func getUnitFromFile(file string) (*unit.UnitFile, error) {
 	out, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, errgo.Mask(err)
 	}
 
-	return unit.NewUnit(string(out))
+	return unit.NewUnitFile(string(out))
 }
 
 func (this *ClientAPI) Submit(name, filePath string) error {
@@ -69,56 +69,66 @@ func (this *ClientAPI) Submit(name, filePath string) error {
 	return nil
 }
 
-func (this *ClientAPI) Get(name string) (*job.Job, error) {
-	j, err := this.client.Job(name)
+func (this *ClientAPI) ScheduledUnit(name string) (*job.ScheduledUnit, error) {
+	su, err := this.client.ScheduledUnit(name)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving Job(%s) from Registry: %v", name, err)
-	} else if j == nil {
-		return nil, fmt.Errorf("unable to find Job(%s)", name)
+		return nil, fmt.Errorf("error retrieving ScheduledUnit (%s) from Registry: %v", name, err)
+	} else if su == nil {
+		return nil, fmt.Errorf("unable to find ScheduledUnit (%s)", name)
 	}
-	return j, nil
+	return su, nil
+}
+
+func (this *ClientAPI) Unit(name string) (*job.Unit, error) {
+	u, err := this.client.Unit(name)
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving Unit (%s) from Registry: %v", name, err)
+	} else if u == nil {
+		return nil, fmt.Errorf("unable to find Unit (%s)", name)
+	}
+	return u, nil
 }
 
 func (this *ClientAPI) Start(name string) error {
-	j, err := this.Get(name)
+	u, err := this.Unit(name)
 
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.SetJobTargetState(j.Name, job.JobStateLaunched)
+	this.client.SetJobTargetState(u.Name, job.JobStateLaunched)
 
 	return nil
 }
 
 func (this *ClientAPI) Stop(name string) error {
-	j, err := this.Get(name)
+	u, err := this.Unit(name)
 
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.SetJobTargetState(j.Name, job.JobStateLoaded)
+	this.client.SetJobTargetState(u.Name, job.JobStateLoaded)
 
 	return nil
 }
 
 func (this *ClientAPI) Load(name string) error {
-	j, err := this.Get(name)
+	u, err := this.Unit(name)
 
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.SetJobTargetState(j.Name, job.JobStateLoaded)
+	this.client.SetJobTargetState(u.Name, job.JobStateLoaded)
 
 	return nil
 }
 
 func (this *ClientAPI) Destroy(name string) error {
-	j, err := this.Get(name)
+	u, err := this.Unit(name)
 
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.DestroyJob(j.Name)
+	this.client.DestroyJob(u.Name)
 
 	return nil
 }
@@ -128,37 +138,70 @@ func (this *ClientAPI) Status(name string) (*Status, error) {
 }
 
 func (this *ClientAPI) StatusUnit(name string) (UnitStatus, error) {
-	j, err := this.Get(name)
-
+	// Get unit state.
+	unitState, err := this.unitState(name)
 	if err != nil {
 		return UnitStatus{}, errgo.Mask(err)
+	}
+
+	// Get machine ip.
+	ip, err := this.getMachineIp(name)
+	if err != nil {
+		return UnitStatus{}, errgo.Mask(err)
+	}
+
+	// Get unit.
+	u, err := this.client.Unit(name)
+	if err != nil {
+		return UnitStatus{}, errgo.Mask(err)
+	}
+
+	return UnitStatus{
+		Unit:   u.Name,
+		State:  string(u.TargetState),
+		Load:   unitState.LoadState,
+		Active: unitState.ActiveState,
+		Sub:    unitState.SubState,
+
+		Description: u.Unit.Description(),
+
+		Machine: ip,
+	}, nil
+}
+
+func (this *ClientAPI) unitState(unitName string) (unit.UnitState, error) {
+	unitStates, err := this.client.UnitStates()
+	if err != nil {
+		return unit.UnitState{}, errgo.Mask(err)
+	}
+
+	state := &unit.UnitState{}
+	for _, unitState := range unitStates {
+		if unitState.UnitName == unitName {
+			state = unitState
+		}
+	}
+
+	return *state, nil
+}
+
+func (this *ClientAPI) getMachineIp(unitName string) (string, error) {
+	su, err := this.client.ScheduledUnit(unitName)
+	if err != nil {
+		return "", errgo.Mask(err)
 	}
 
 	machines, err := this.client.Machines()
 	if err != nil {
-		return UnitStatus{}, errgo.Mask(err)
+		return "", errgo.Mask(err)
 	}
 
 	ip := ""
 	for _, machine := range machines {
-		if machine.ID == j.UnitState.MachineID {
+		if machine.ID == su.TargetMachineID {
 			ip = machine.PublicIP
 		}
 	}
 
-	description := ""
-	for _, s := range j.Unit.Contents["Unit"]["Description"] {
-		description = s
-	}
-	return UnitStatus{
-		Unit:   j.Name,
-		State:  string(*j.State),
-		Load:   j.UnitState.LoadState,
-		Active: j.UnitState.ActiveState,
-		Sub:    j.UnitState.SubState,
-
-		Description: description,
-
-		Machine: ip,
-	}, nil
+	return GetMachineIP(ip), nil
 }

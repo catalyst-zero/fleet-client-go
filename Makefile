@@ -10,7 +10,7 @@ BUILD_PATH := $(shell pwd)/.gobuild
 
 D0_PATH := "$(BUILD_PATH)/src/$(PARENT_PACKAGE)"
 
-.PHONY=clean run-test get-deps update-deps fmt run-tests examples library
+.PHONY=clean run-test get-deps update-deps fmt run-tests examples
 
 GOPATH := $(BUILD_PATH)
 
@@ -21,7 +21,7 @@ ARCH=$(shell go env GOARCH)
 
 # === Top Level Targets ==============================
 
-all: get-deps library examples
+all: get-deps examples
 
 clean:
 	rm -rf $(BUILD_PATH) examples/bin/
@@ -42,13 +42,6 @@ get-deps: .gobuild
 	#
 	# Fetch public dependencies via `go get`
 	GOPATH=$(GOPATH) go get -d -v $(PROJECT_PACKAGE)
-
-
-## -- library ---------------------------------------------
-library: $(BUILD_PATH)/pkg/$(OS)_$(ARCH)/$(PARENT_PACKAGE)/fleet-client-go.a
-
-$(BUILD_PATH)/pkg/$(OS)_$(ARCH)/$(PARENT_PACKAGE)/fleet-client-go.a: $(SOURCE)
-	cd $(GOPATH); GOPATH=$(GOPATH) go install -a $(PROJECT_PACKAGE)
 
 ## -- examples ---------------------------------------------
 examples: examples/bin/cli examples/bin/status
