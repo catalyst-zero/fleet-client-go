@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/coreos/fleet/job"
+	"github.com/coreos/fleet/schema"
 	"github.com/juju/errgo"
 
 	"fmt"
@@ -39,11 +39,7 @@ func (this *ClientCLI) Submit(name, filePath string) error {
 	return nil
 }
 
-func (this *ClientCLI) ScheduledUnit(name string) (*job.ScheduledUnit, error) {
-	return nil, fmt.Errorf("Method not implemented: ClientCLI.ScheduledUnit")
-}
-
-func (this *ClientCLI) Unit(name string) (*job.Unit, error) {
+func (this *ClientCLI) Unit(name string) (*schema.Unit, error) {
 	return nil, fmt.Errorf("Method not implemented: ClientCLI.Unit")
 }
 
