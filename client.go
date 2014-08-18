@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/coreos/fleet/job"
+	"github.com/coreos/fleet/schema"
 )
 
 const (
@@ -61,13 +61,7 @@ type FleetClient interface {
 	// A Unit is a submitted job known by fleet, but not started yet. Submitting
 	// a job creates a unit. Unit() returns such an object. Further a Unit has
 	// different properties than a ScheduledUnit.
-	Unit(name string) (*job.Unit, error)
-
-	// A ScheduledUnit is a submitted job known by fleet in a specific state.
-	// ScheduledUnit() does not fetch a ScheduledUnit if a Unit is not started
-	// yet, but only submitted. Further a ScheduledUnit has different properties
-	// than a Unit.
-	ScheduledUnit(name string) (*job.ScheduledUnit, error)
+	Unit(name string) (*schema.Unit, error)
 
 	Submit(name, filePath string) error
 	Start(name string) error

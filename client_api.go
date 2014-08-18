@@ -3,7 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/coreos/fleet/client"
-	"github.com/coreos/fleet/job"
+	"github.com/coreos/fleet/schema"
 	"github.com/coreos/fleet/unit"
 	"github.com/juju/errgo"
 	"io/ioutil"
@@ -36,7 +36,7 @@ func NewClientAPIWithSocket(socket string) FleetClient {
 		Transport: &trans,
 	}
 
-	c, _ := client.NewHTTPClient(&hc)
+	c, _ := client.NewHTTPClient(&hc, "http://localhost/")
 
 	return &ClientAPI{
 		client: c,
@@ -55,31 +55,26 @@ func getUnitFromFile(file string) (*unit.UnitFile, error) {
 }
 
 func (this *ClientAPI) Submit(name, filePath string) error {
-	unit, err := getUnitFromFile(filePath)
+	uf, err := getUnitFromFile(filePath)
 	if err != nil {
 		return fmt.Errorf("failed reading unit file %s: %v", name, err)
 	}
 
-	j := job.NewJob(name, *unit)
+	options := schema.MapUnitFileToSchemaUnitOptions(uf)
 
-	if err := this.client.CreateJob(j); err != nil {
-		return fmt.Errorf("failed creating job %s: %v", j.Name, err)
+	unit := schema.Unit{
+		Name:    name,
+		Options: options,
+	}
+
+	if err := this.client.CreateUnit(&unit); err != nil {
+		return fmt.Errorf("failed creating unit %s: %v", unit.Name, err)
 	}
 
 	return nil
 }
 
-func (this *ClientAPI) ScheduledUnit(name string) (*job.ScheduledUnit, error) {
-	su, err := this.client.ScheduledUnit(name)
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving ScheduledUnit (%s) from Registry: %v", name, err)
-	} else if su == nil {
-		return nil, fmt.Errorf("unable to find ScheduledUnit (%s)", name)
-	}
-	return su, nil
-}
-
-func (this *ClientAPI) Unit(name string) (*job.Unit, error) {
+func (this *ClientAPI) Unit(name string) (*schema.Unit, error) {
 	u, err := this.client.Unit(name)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving Unit (%s) from Registry: %v", name, err)
@@ -95,7 +90,7 @@ func (this *ClientAPI) Start(name string) error {
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.SetJobTargetState(u.Name, job.JobStateLaunched)
+	this.client.SetUnitTargetState(u.Name, STATE_LAUNCHED)
 
 	return nil
 }
@@ -106,7 +101,7 @@ func (this *ClientAPI) Stop(name string) error {
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.SetJobTargetState(u.Name, job.JobStateLoaded)
+	this.client.SetUnitTargetState(u.Name, STATE_LOADED)
 
 	return nil
 }
@@ -117,7 +112,7 @@ func (this *ClientAPI) Load(name string) error {
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.SetJobTargetState(u.Name, job.JobStateLoaded)
+	this.client.SetUnitTargetState(u.Name, STATE_LOADED)
 
 	return nil
 }
@@ -128,7 +123,7 @@ func (this *ClientAPI) Destroy(name string) error {
 	if err != nil {
 		return errgo.Mask(err)
 	}
-	this.client.DestroyJob(u.Name)
+	this.client.DestroyUnit(u.Name)
 
 	return nil
 }
@@ -144,40 +139,40 @@ func (this *ClientAPI) StatusUnit(name string) (UnitStatus, error) {
 		return UnitStatus{}, errgo.Mask(err)
 	}
 
-	// Get machine ip.
-	ip, err := this.getMachineIp(name)
-	if err != nil {
-		return UnitStatus{}, errgo.Mask(err)
-	}
-
 	// Get unit.
 	u, err := this.client.Unit(name)
 	if err != nil {
 		return UnitStatus{}, errgo.Mask(err)
 	}
 
-	return UnitStatus{
-		Unit:   u.Name,
-		State:  string(u.TargetState),
-		Load:   unitState.LoadState,
-		Active: unitState.ActiveState,
-		Sub:    unitState.SubState,
+	// Get machine ip.
+	ip, err := this.getMachineIp(u)
+	if err != nil {
+		return UnitStatus{}, errgo.Mask(err)
+	}
 
-		Description: u.Unit.Description(),
+	return UnitStatus{
+		Unit:        u.Name,
+		Description: description(u.Options),
+
+		State:  string(u.DesiredState),
+		Load:   unitState.SystemdLoadState,
+		Active: unitState.SystemdActiveState,
+		Sub:    unitState.SystemdSubState,
 
 		Machine: ip,
 	}, nil
 }
 
-func (this *ClientAPI) unitState(unitName string) (unit.UnitState, error) {
+func (this *ClientAPI) unitState(unitName string) (schema.UnitState, error) {
 	unitStates, err := this.client.UnitStates()
 	if err != nil {
-		return unit.UnitState{}, errgo.Mask(err)
+		return schema.UnitState{}, errgo.Mask(err)
 	}
 
-	state := &unit.UnitState{}
+	state := &schema.UnitState{}
 	for _, unitState := range unitStates {
-		if unitState.UnitName == unitName {
+		if unitState.Name == unitName {
 			state = unitState
 		}
 	}
@@ -185,12 +180,7 @@ func (this *ClientAPI) unitState(unitName string) (unit.UnitState, error) {
 	return *state, nil
 }
 
-func (this *ClientAPI) getMachineIp(unitName string) (string, error) {
-	su, err := this.client.ScheduledUnit(unitName)
-	if err != nil {
-		return "", errgo.Mask(err)
-	}
-
+func (this *ClientAPI) getMachineIp(unit *schema.Unit) (string, error) {
 	machines, err := this.client.Machines()
 	if err != nil {
 		return "", errgo.Mask(err)
@@ -198,10 +188,20 @@ func (this *ClientAPI) getMachineIp(unitName string) (string, error) {
 
 	ip := ""
 	for _, machine := range machines {
-		if machine.ID == su.TargetMachineID {
+		if machine.ID == unit.MachineID {
 			ip = machine.PublicIP
 		}
 	}
 
 	return GetMachineIP(ip), nil
+}
+
+func description(options []*schema.UnitOption) string {
+	for _, option := range options {
+		if option.Section == "Unit" && option.Name == "Description" {
+			return option.Value
+		}
+	}
+
+	return ""
 }
