@@ -2,8 +2,6 @@ PROJECT=fleet-client-go
 
 PARENT_PACKAGE=github.com/catalyst-zero
 
-
-
 PROJECT_PACKAGE=$(PARENT_PACKAGE)/$(PROJECT)
 
 BUILD_PATH := $(shell pwd)/.gobuild
@@ -14,7 +12,7 @@ D0_PATH := "$(BUILD_PATH)/src/$(PARENT_PACKAGE)"
 
 GOPATH := $(BUILD_PATH)
 
-SOURCE=$(shell find $(BUILD_PATH) -name '*.go' | grep -v examples)
+SOURCE=$(shell find -L $(BUILD_PATH) -name '*.go' | grep -v examples)
 
 OS=$(shell go env GOOS)
 ARCH=$(shell go env GOARCH)
@@ -46,8 +44,8 @@ get-deps: .gobuild
 ## -- examples ---------------------------------------------
 examples: examples/bin/cli examples/bin/status
 
-examples/bin/cli: .gobuild examples/cli/cli.go
+examples/bin/cli: .gobuild examples/cli/cli.go $(SOURCE)
 	GOPATH=$(GOPATH) go build -o examples/bin/cli examples/cli/cli.go
 
-examples/bin/status: .gobuild examples/status/status.go
+examples/bin/status: .gobuild examples/status/status.go $(SOURCE)
 	GOPATH=$(GOPATH) go build -o examples/bin/status examples/status/status.go
